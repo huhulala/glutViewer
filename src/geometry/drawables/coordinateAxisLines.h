@@ -2,6 +2,8 @@
 #define PV__COORDINATE_AXIS_H__
 
 #include "../../base/types/types.h"
+#include "../renderable.h"
+
 
 BEGIN_PV_NAMESPACE
 
@@ -10,13 +12,13 @@ BEGIN_PV_NAMESPACE
  A class that draws just three lines that represent the x-, y- and z-axis in their
  typical color.
  */
-class CoordinateAxisLines {
+class CoordinateAxisLines : Renderable {
 public:
 	//! Default Constructor
 	CoordinateAxisLines(Float size);
-	
+
 	//! Method that draws the axis
-	void draw();
+	void drawGL() const;
 
 private:
 	Float m_size;

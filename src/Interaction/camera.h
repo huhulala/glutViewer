@@ -88,6 +88,9 @@ public:
 	//! Query up position
 	FVec3& up();
 
+	//! Query up view
+	FVec3& view();
+
 	//! Query distance
 	Float& distance();
 
@@ -177,6 +180,10 @@ inline FVec3& Camera::center() {
 
 inline FVec3& Camera::up() {
 	return m_up;
+}
+
+inline FVec3& Camera::view() {
+	return m_view;
 }
 
 inline Float& Camera::fov() {

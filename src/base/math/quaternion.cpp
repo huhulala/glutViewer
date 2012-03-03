@@ -18,6 +18,93 @@ Quaternion::Quaternion(FVec3& axis, float in_degrees) {
 
 }
 
+
+/*!
+ * Multiplies the quaternion with another quaternion.
+ * The Rotation of this quaternion will be done first.
+ * \param q A reference to the lhs of the multiplication.
+ */
+void Quaternion::mult(const Quaternion &q) {
+	double a = (w + x) * (q.getW() + q.getX());
+	double b = (z - y) * (q.getY() - q.getZ());
+	double c = (w - x) * (q.getY() + q.getZ());
+	double d = (y + z) * (q.getW() - q.getX());
+	double e = (x + z) * (q.getX() + q.getY());
+	double f = (x - z) * (q.getX() - q.getY());
+	double g = (w + y) * (q.getW() - q.getZ());
+	double h = (w - y) * (q.getW() + q.getZ());
+
+	x = a - (e + f + g + h) / 2.0;
+	y = c + (e - f + g - h) / 2.0;
+	z = d + (e - f - g + h) / 2.0;
+	w = b + (-e -f + g + h) / 2.0;
+}
+
+
+
+/*!
+ * Constructor that creates a quaternion from Euler angles.
+ * \param roll The roll Euler angle.
+ * \param pitch The pitch Euler angle.
+ * \param yaw The yaw Euler angle.
+ */
+Quaternion::Quaternion(double roll, double pitch, double yaw) {
+
+	double cr = cos(roll / 2.0);
+	double cp = cos(pitch / 2.0);
+	double cy = cos(yaw / 2.0);
+
+	double sr = sin(roll / 2.0);
+	double sp = sin(pitch / 2.0);
+	double sy = sin(yaw / 2.0);
+
+	double cpcy = cp * cy;
+	double spsy = sp * sy;
+
+	x = sr * cpcy - cr * spsy;
+	y = cr * sp * cy + sr * cp * sy;
+	z = cr * cp * sy - sr * sp * cy;
+	w = cr * cpcy + sr * spsy;
+}
+
+/*!
+ * Returns the x component of the quaternion.
+ * \return A double with the x component.
+ */
+double Quaternion::getX() const {
+	return x;
+}
+
+
+
+/*!
+ * Returns the y component of the quaternion.
+ * \return A double with the xycomponent.
+ */
+double Quaternion::getY() const {
+	return y;
+}
+
+
+
+/*!
+ * Returns the z component of the quaternion.
+ * \return A double with the z component.
+ */
+double Quaternion::getZ() const {
+	return z;
+}
+
+/*!
+ * Returns the w component of the quaternion.
+ * \return A double with the w component.
+ */
+double Quaternion::getW() const {
+	return w;
+}
+
+
+
 Quaternion::~Quaternion() {
 
 }

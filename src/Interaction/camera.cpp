@@ -176,52 +176,153 @@ void Camera::pan(const Float speed,int x, int y) {
 	m_center = fp;
 }
 
-void Camera::rotate(const Float speedFactor,int x, int y) {
+void Camera::rotate(const Float sens,int x, int y) {
 
-	std::cout<<"x: "<<x<<"y: "<<y<<endl;
+	/*
 
-	double scale = m_eye.length();
+	 std::cout<<"x: "<<x<<"y: "<<y<<endl;
 
-	FVec3 scaledEye =FVec3(m_eye[0] / scale,m_eye[1] / scale, m_eye[2] / scale);
-	FVec3 scaledCenter =FVec3(m_center[0] / scale,m_center[1] / scale, m_center[2] / scale);
+	 double scale = m_eye.length();
 
-	//cam.SetFocalPoint(temp[0] / scale, temp[1] / scale, temp[2] / scale);
-	//temp = cam.GetPosition();
-	//cam.SetPosition(temp[0] / scale, temp[1] / scale, temp[2] / scale);
+	 FVec3 scaledEye =FVec3(m_eye[0] / scale,m_eye[1] / scale, m_eye[2] / scale);
+	 FVec3 scaledCenter =FVec3(m_center[0] / scale,m_center[1] / scale, m_center[2] / scale);
 
-	// translate to center
-	//rotTransform.Identity();
-	//rotTransform.Translate(COR.x / scale, COR.y / scale, COR.z / scale);
+	 //cam.SetFocalPoint(temp[0] / scale, temp[1] / scale, temp[2] / scale);
+	 //temp = cam.GetPosition();
+	 //cam.SetPosition(temp[0] / scale, temp[1] / scale, temp[2] / scale);
 
-	// azimuth
-	calculateNormal();
-	//FMat4 rotation = FMat4 ();
-	Quaternion azimuth = Quaternion();
-	azimuth.CreateFromAxisAngle(m_up[0],m_up[1],m_up[2],360.0 * x * speedFactor/ m_imageSize[0]);
-	//if(x!=0)
-	///rotation.rotateAxisAngle(m_up,360.0 * x * speedFactor/ m_imageSize[0]);
+	 // translate to center
+	 //rotTransform.Identity();
+	 //rotTransform.Translate(COR.x / scale, COR.y / scale, COR.z / scale);
 
-	Quaternion elevation = Quaternion();
-	elevation.CreateFromAxisAngle(m_normal[0],m_normal[1],m_normal[2],-360.0 * y * speedFactor / m_imageSize[1]);
+	 // azimuth
+	 calculateNormal();
+	 //FMat4 rotation = FMat4 ();
+	 Quaternion azimuth = Quaternion();
+	 azimuth.CreateFromAxisAngle(m_up[0],m_up[1],m_up[2],360.0 * x * speedFactor/ m_imageSize[0]);
+	 //if(x!=0)
+	 ///rotation.rotateAxisAngle(m_up,360.0 * x * speedFactor/ m_imageSize[0]);
 
-	// elevation
-	//FMat4 rotation1 = FMat4 ();
-	//m_normal = m_view^m_up;
-	//m_normal=m_normal.normalized();
-	//rotation.rotateAxisAngle(m_normal,-360.0 * y * speedFactor / m_imageSize[1]);
+	 Quaternion elevation = Quaternion();
+	 elevation.CreateFromAxisAngle(m_normal[0],m_normal[1],m_normal[2],-360.0 * y * speedFactor / m_imageSize[1]);
 
-	//rotation=rotation1*rotation;
+	 // elevation
+	 //FMat4 rotation1 = FMat4 ();
+	 //m_normal = m_view^m_up;
+	 //m_normal=m_normal.normalized();
+	 //rotation.rotateAxisAngle(m_normal,-360.0 * y * speedFactor / m_imageSize[1]);
 
-	Quaternion rot = elevation*azimuth;
+	 //rotation=rotation1*rotation;
 
-	FMat4 rotation = rot.transform();
+	 Quaternion rot = elevation*azimuth;
 
-	m_eye = scaledEye;
-	m_center = scaledCenter;
-	applyTransform(rotation);
-	calculateNormal();
-	m_eye =FVec3(m_eye[0] *scale,m_eye[1] *scale, m_eye[2] * scale);
-	m_center =FVec3(m_center[0] * scale,m_center[1] * scale, m_center[2] * scale);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	float dx = (float) (x) / (float) (m_imageSize[0]);
+	float dy = (float) (y) / (float) (m_imageSize[1]);
+
+	 calculateNormal();
+
+	 //double scale = m_eye.length();
+	 //FVec3 scaledEye =FVec3(m_eye[0] / scale,m_eye[1] / scale, m_eye[2] / scale);
+	 //FVec3 scaledCenter =FVec3(m_center[0] / scale,m_center[1] / scale, m_center[2] / scale);
+
+	 // Normalized vector from center of interest to the camera in world space.
+	 FVec3 sphericalDir = FVec3(-m_view[0],-m_view[1],-m_view[2]);
+
+	 // Extract spherical coordinates from spherical position.
+	 // theta: Rotation of the camera about the world up-axis (y or z)
+	 // phi: Rotation of the camera about the world x-axis.
+	 // theta=0 and phi=0 always means that the camera is located on the
+	 // positive z-axis with up-vector alogn the world y-axis and looking along
+	 // the negative z-axis.
+	 Float theta = atan2(sphericalDir[0], sphericalDir[2]);
+	 Float phi = asin(macros::clip(-sphericalDir[1], -1.0f, 1.0f));
+
+	 // Check if camera is upside down.
+	 if (m_up[1] < 0) {
+	 theta -= M_PI;
+	 phi = M_PI - phi;
+	 }
+
+	 // Map theta and phi to the range [0,360)
+	 if (theta < 0)
+	 theta += 2*M_PI;
+	 if (phi < 0)
+	 phi += 2*M_PI;
+
+	 // Add mouse delta and set new rotation angles.
+	 const Float rotateSpeed = 0.25;
+	 Float angularSpeed = macros::deg2rad(rotateSpeed);
+	 if(m_up[1] < 0)
+	 theta += x * angularSpeed;
+	 else
+	 theta -= x * angularSpeed;
+	 phi -= y * angularSpeed;
+
+	 FVec3 rotate = FVec3(macros::rad2deg(phi), macros::rad2deg(theta), 0);
+
+	 // Compute new position from polar coordinates.
+	 Float cosPhi = cosf(phi);
+	 Float sinPhi = sinf(phi);
+	 Float sinTheta = sinf(theta);
+	 Float cosTheta = cosf(theta);
+
+	 // Normalized vector from center of interest to new camera position (world space).
+	 FVec3 newSphericalDir = FVec3(cosPhi * sinTheta, -sinPhi, cosPhi * cosTheta);
+
+	 // Compute new position of the camera in world space.
+	  m_eye = newSphericalDir*m_distance+m_center;
+	  calculateNormal();
+
+	// FVec3 scale = FVec3(1,1,1);
+
+	 //FMat4 rotation = FMat4(t,rotate,scale);
+
+ */
+
+
+	Quaternion qCam = Quaternion();
+	qCam.mult(Quaternion(0.0, x/sens, 0.0));
+	qCam.mult(Quaternion(y/sens, 0.0, 0.0));
+
+	FMat4 rot = qCam.transform();
+	m_eye = rot.multAffineMatDir(m_eye);
+	m_up = rot.multAffineMatDir(m_up);
+
+
+
+
+
+
+
+
+
+
+
+	//calculateNormal();
+
+
+	//m_eye = scaledEye;
+	//m_center = scaledCenter;
+    //applyTransform(qCam.transform());
+
+	//m_eye =FVec3(m_eye[0] *scale,m_eye[1] *scale, m_eye[2] * scale);
+	//m_center =FVec3(m_center[0] * scale,m_center[1] * scale, m_center[2] * scale);
+
 
 }
 

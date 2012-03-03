@@ -4,12 +4,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/base/math/mat4.cpp \
 ../src/base/math/quaternion.cpp 
 
 OBJS += \
+./src/base/math/mat4.o \
 ./src/base/math/quaternion.o 
 
 CPP_DEPS += \
+./src/base/math/mat4.d \
 ./src/base/math/quaternion.d 
 
 

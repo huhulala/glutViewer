@@ -247,7 +247,7 @@ void GlutManager::CallGlutCreateWindow(char * setTitle,
 	glutPassiveMotionFunc(CallBackPassiveMotionFunc);
 	glutReshapeFunc(CallBackReshapeFunc);
 	glutVisibilityFunc(CallBackVisibilityFunc);
-	setupMenus();
+	//setupMenus();
 }
 
 void GlutManager::CallGlutMainLoop(void) {

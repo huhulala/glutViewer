@@ -1,5 +1,5 @@
 #include "glrenderviewport.h"
-#include "../geometry/drawables/grid.h"
+#include "../geometry/drawables/coordinateAxisLines.h"
 #include <iostream>
 
 BEGIN_PV_NAMESPACE
@@ -204,8 +204,8 @@ void GLRenderViewport::renderViewportGeometry() {
 	glPushMatrix();
 	//DrawWorldCoordinates(10.0f);
 
-	Grid wcs = Grid(1.0f);
-	wcs.draw();
+	CoordinateAxisLines wcs = CoordinateAxisLines(1.0f);
+	wcs.drawGL();
 
 	glPopMatrix();
 }
@@ -344,11 +344,18 @@ void GLRenderViewport::CallBackMouseFunc(int button, int state, int x, int y) {
 	m_panOn = false;
 
 	if(button==0 && state==0 ) {
-		IVec2 currentPos = IVec2(-x, -y);
+		IVec2 currentPos = IVec2(x, y);
 		m_rotateOn = true;
 		m_mouseStartPos = currentPos;
 	} else
 	m_rotateOn = false;
+
+	if(button==2 && state==0 ) {
+		IVec2 currentPos = IVec2(x, y);
+		m_zoomOn = true;
+		m_mouseStartPos = currentPos;
+	} else
+	m_zoomOn = false;
 
 	if(button==3)
 	m_camera->dolly(0.5);
@@ -370,13 +377,32 @@ void GLRenderViewport::CallBackMotionFunc(int x, int y) {
 	}
 	if(m_rotateOn) {
 
-		IVec2 currentPos = IVec2(-x, -y);
+		double sens = ((90.0 - m_camera->fov()) * pow(1.03, 90.0 - m_camera->fov())) + 40.0;
+
+		IVec2 currentPos = IVec2(x, y);
 		IVec2 offset = currentPos - m_mouseStartPos;
 
-		m_camera->rotate(1.0f,-offset[0],offset[1]);
+		m_camera->rotate(sens,offset[0],offset[1]);
 		CallBackDisplayFunc();
 		m_mouseStartPos = currentPos;
 	}
+	if(m_zoomOn) {
+
+		//double sens = ((90.0 - m_camera->fov()) * pow(1.03, 90.0 - m_camera->fov())) + 40.0;
+
+		IVec2 currentPos = IVec2(x, y);
+		IVec2 offset = currentPos - m_mouseStartPos;
+
+		if(offset[1]>0)
+		m_camera->zoom(1.03);
+		else
+			m_camera->zoom(0.97);
+
+		CallBackReshapeFunc(m_width, m_height);
+		CallBackDisplayFunc();
+		m_mouseStartPos = currentPos;
+	}
+
 }
 
 END_PV_NAMESPACE

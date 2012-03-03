@@ -11,6 +11,11 @@ using namespace std;
 #define END_PV_NAMESPACE }
 #define USE_PV_NAMESPACE using namespace pv;
 
+const float M_PI = 3.14159265358979323846;
+
+//! Define an uppercase assert
+#define ASSERT assert
+
 //! Define an integer of the same size as a pointer
 typedef intptr_t PtrInt;
 //! Define an unsigned integer of the same size as a pointer

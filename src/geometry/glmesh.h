@@ -1,8 +1,10 @@
 #ifndef MESH_H_
 #define MESH_H_
 
+#include "renderable.h"
+
 //! A geometry resource on the graphic card
-class GLMesh {
+class GLMesh: Renderable {
 public:
 
 	//! Constructor
@@ -26,13 +28,8 @@ public:
 	//! Reset the GLMesh
 	void clear();
 
-
 private:
 
-
-
 };
-
-
 
 #endif /* MESH_H_ */

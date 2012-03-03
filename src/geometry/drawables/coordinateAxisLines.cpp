@@ -6,7 +6,7 @@ BEGIN_PV_NAMESPACE
 CoordinateAxisLines::CoordinateAxisLines(Float size): m_size(size) {
 }
 
-void CoordinateAxisLines::draw() {
+void CoordinateAxisLines::drawGL() const {
 	//if (is_hidden)
 	//	return;
 

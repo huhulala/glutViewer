@@ -1,4 +1,4 @@
-#include "grid.h".h"
+#include "grid.h"
 #include <GL/glut.h>
 
 BEGIN_PV_NAMESPACE

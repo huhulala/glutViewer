@@ -16,8 +16,9 @@ src/viewport/glrenderviewport.d: ../src/viewport/glrenderviewport.cpp \
  ../src/viewport/../Interaction/../base/math/quaternion.h \
  ../src/viewport/../Interaction/../base/math/mat4.h \
  ../src/viewport/../base/math/vec3.h \
- ../src/viewport/../geometry/drawables/grid.h \
- ../src/viewport/../geometry/drawables/../../base/types/types.h
+ ../src/viewport/../geometry/drawables/coordinateAxisLines.h \
+ ../src/viewport/../geometry/drawables/../../base/types/types.h \
+ ../src/viewport/../geometry/drawables/../renderable.h
 
 ../src/viewport/glrenderviewport.h:
 
@@ -55,6 +56,8 @@ src/viewport/glrenderviewport.d: ../src/viewport/glrenderviewport.cpp \
 
 ../src/viewport/../base/math/vec3.h:
 
-../src/viewport/../geometry/drawables/grid.h:
+../src/viewport/../geometry/drawables/coordinateAxisLines.h:
 
 ../src/viewport/../geometry/drawables/../../base/types/types.h:
+
+../src/viewport/../geometry/drawables/../renderable.h:

@@ -64,6 +64,8 @@ private:
 
 	Bool m_rotateOn;
 
+	Bool m_zoomOn;
+
 	//! Should the light position set to pov?
 	Bool m_cameraLightning;
 

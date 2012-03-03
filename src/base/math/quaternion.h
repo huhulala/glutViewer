@@ -13,11 +13,18 @@ class Quaternion
 {
 public:
 
+	//! Axis angle constructor
 	Quaternion(FVec3& axis, float angle);
+	//! Euler angle constructor
+	Quaternion(double roll, double pitch, double yaw);
+	//! Uninitialized d constructor
 	Quaternion();
 	~Quaternion();
 
 	FMat4& transform();
+
+	void mult(const Quaternion &q);
+
 	void CreateMatrix(float *pMatrix);
 	void CreateFromAxisAngle(const float &in_x,
 			const float &in_y,
@@ -25,6 +32,18 @@ public:
 			const float &in_degrees);
 
 	Quaternion operator *(const Quaternion &q);
+
+	//! returns the x member
+	double getX() const;
+
+	//! returns the y member
+	double getY() const;
+
+	//! returns the z member
+	double getZ() const;
+
+	double getW() const ;
+
 
 private:
 

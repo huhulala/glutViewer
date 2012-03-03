@@ -35,6 +35,9 @@ public:
 	//! Uninitializing Constructor
 	Mat4(Uninitialized);
 
+	//! Set a transformation
+	Mat4(Vec3<T>& translate, Vec3<T>& rotate, Vec3<T>& scale);
+
 	void CreateFromAxisAngle(FVec3& axis, float angle);
 
 	void rotateAxisAngle(FVec3& axis, float angle);
@@ -94,6 +97,47 @@ Mat4<T>::Mat4(const T& m0, const T& m1, const T& m2, const T& m3, const T& m4,
 	(*this)[13] = m13;
 	(*this)[14] = m14;
 	(*this)[15] = m15;
+}
+
+template<class T>
+Mat4<T>::Mat4( Vec3<T>& translate,  Vec3<T>& rotate,
+                                 Vec3<T>& scale)
+{
+  T rx = pv::macros::deg2rad(rotate[0]);
+  T ry = pv::macros::deg2rad(rotate[1]);
+  T rz = pv::macros::deg2rad(rotate[2]);
+
+  Float sinX = sinf(rx);
+  Float cosX = cosf(rx);
+  Float sinY = sinf(ry);
+  Float cosY = cosf(ry);
+  Float sinZ = sinf(rz);
+  Float cosZ = cosf(rz);
+
+  Float sx = scale[0];
+  Float sy = scale[1];
+  Float sz = scale[2];
+
+  Float tx = translate[0];
+  Float ty = translate[1];
+  Float tz = translate[2];
+
+  (*this)[0]  = sx*cosY*cosZ;
+  (*this)[1]  = sx*cosY*sinZ;
+  (*this)[2]  = -sx*sinY;
+  (*this)[3]  = 0.0f;
+  (*this)[4]  = sy*(-cosX*sinZ + sinX*sinY*cosZ);
+  (*this)[5]  = sy*(cosX*cosZ + sinX*sinY*sinZ);
+  (*this)[6]  = sy*sinX*cosY;
+  (*this)[7]  = 0;
+  (*this)[8]  = sz*(sinX*sinZ + cosX*sinY*cosZ);
+  (*this)[9]  = sz*(-sinX*cosZ + cosX*sinZ*sinY);
+  (*this)[10] = sz*cosX*cosY;
+  (*this)[11] = 0;
+  (*this)[12] = tx;
+  (*this)[13] = ty;
+  (*this)[14] = tz;
+  (*this)[15] = 1;
 }
 
 template<class T>
