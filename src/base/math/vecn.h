@@ -18,6 +18,8 @@ public:
 	//! Access an element
 	T& operator[](const Int& i);
 
+	const T& operator[](const Int& i) const;
+
 	//! Compute the squared length of the vector
 	T sqrLength();
 
@@ -57,5 +59,9 @@ template<class T, UInt n>
 T& VecN<T, n>::operator[](const Int& i) {
 	return m_data[i];
 }
+
+template<class T, UInt n>
+const T& VecN<T,n>::operator[](const Int& i) const
+{ return m_data[i]; }
 
 #endif /* VECN_H_ */

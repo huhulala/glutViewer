@@ -17,7 +17,7 @@ void CoordinateAxisLines::drawGL() const {
 	glPushAttrib( GL_ENABLE_BIT);
 	glDisable( GL_BLEND);
 	glPushMatrix();
-	//glTranslated(-1.3, -1.3, -1.3);
+	glTranslated(0, 3, 0);
 	glBegin( GL_LINES);
 	// x: red
 	glColor3f(1.0, 0.0, 0.0);

@@ -24,9 +24,13 @@ C_UPPER_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 src/viewport \
+src/structure \
+src/opengl \
 src \
 src/geometry \
 src/geometry/drawables \
+src/engine \
+src/chip \
 src/base/math \
 src/Interaction \
 

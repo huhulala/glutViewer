@@ -5,7 +5,10 @@
 #include <cassert>
 #include <stdint.h>
 #include  <string>
+#include <pthread.h>
 using namespace std;
+
+
 
 #define BEGIN_PV_NAMESPACE namespace pv {
 #define END_PV_NAMESPACE }

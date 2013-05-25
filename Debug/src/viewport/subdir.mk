@@ -4,17 +4,20 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/viewport/glrenderviewport.cpp \
+../src/viewport/glrenderviewport2D.cpp \
+../src/viewport/glrenderviewport3D.cpp \
 ../src/viewport/glutmanager.cpp \
 ../src/viewport/glutviewport.cpp 
 
 OBJS += \
-./src/viewport/glrenderviewport.o \
+./src/viewport/glrenderviewport2D.o \
+./src/viewport/glrenderviewport3D.o \
 ./src/viewport/glutmanager.o \
 ./src/viewport/glutviewport.o 
 
 CPP_DEPS += \
-./src/viewport/glrenderviewport.d \
+./src/viewport/glrenderviewport2D.d \
+./src/viewport/glrenderviewport3D.d \
 ./src/viewport/glutmanager.d \
 ./src/viewport/glutviewport.d 
 

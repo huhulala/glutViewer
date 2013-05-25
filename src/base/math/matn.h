@@ -25,6 +25,9 @@ public:
 	//! Cast operator to const T*
 	operator const T*() const;
 
+	//! Cast operator to const T*
+	operator  T*() ;
+
 	//! Initialize the matrix to identity
 	void setIdentity();
 
@@ -93,6 +96,12 @@ template<class T, UInt n>
 MatN<T, n>::operator const T*() const {
 	return m_data;
 }
+
+template<class T, UInt n>
+MatN<T, n>::operator  T*()  {
+	return m_data;
+}
+
 
 template<class T, UInt n>
 Bool MatN<T, n>::isIdentity() {

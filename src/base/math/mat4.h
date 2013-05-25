@@ -303,7 +303,8 @@ void Mat4<T>::TranslateMatrix(float x, float y, float z) {
 //}
 
 
-//! Define a 3-dimensional float matrix
+//! Define a 4-dimensional float matrix
 typedef Mat4<Float> FMat4;
+
 
 #endif /* MAT4_H_ */

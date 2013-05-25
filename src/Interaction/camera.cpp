@@ -5,10 +5,11 @@
 BEGIN_PV_NAMESPACE
 
 Camera::Camera():
+m_projectionType(PERSPECTIVE),
 m_frustrum(FVec2(1.0,1000.0)),
 m_eye(FVec3(0.0,0.0,0.0)),
-m_center(FVec3(0.0,0.0,0.0)) ,
-m_up(FVec3(0.0,0.0,0.0)) {
+m_center(FVec3(0.0,0.0,10.0)) ,
+m_up(FVec3(0.0,-1.0,0.0)) {
 	m_fovY = 30.0;
 	m_distance = 999.0;
 }
@@ -32,6 +33,14 @@ void Camera::print() {
 	std::cout <<"up: "<<m_up[0]<<" "<<m_up[1]<<" "<<m_up[2]<< endl;
 	std::cout <<"view: "<<m_view[0]<<" "<<m_view[1]<<" "<<m_view[2]<< endl;
 	std::cout <<"normal: "<<m_normal[0]<<" "<<m_normal[1]<<" "<<m_normal[2]<< endl;
+}
+
+void Camera::setProjectionMode(ProjectionType projectionType) {
+	m_projectionType = projectionType;
+}
+
+Camera::ProjectionType Camera::projectionMode() {
+	return m_projectionType;
 }
 
 void Camera::setEye(Float cX, Float cY, Float cZ) {
@@ -133,16 +142,157 @@ void Camera::ComputeDistance()
 	m_distance = delta.length();
 }
 
-void Camera::zoom(Float amount)
+void Camera::zoom(int y,Float amount)
 {
-	this->setFov(fov()/amount);
+	//this->setFov(fov()/amount);
+
+	//int[] size = renderer.GetSize();
+	//float ZoomScale = 0.0f;
+	//double pos[];
+	//double norm[];
+	//double fp[];
+	double tmp;
+	double k = 0.0;
+
+	FVec3 fp = eye();
+
+	Float ZoomScale = (float) (1.5f * m_frustrum[1] / ((float) m_imageSize[1]));
+	ZoomScale *= amount;
+	k = y * ZoomScale;
+
+	FVec3 view1 = m_view;
+
+	tmp = k * m_view[0];
+	m_center[0] += tmp;
+	fp[0] += tmp;
+
+	tmp = k * m_view[1];
+	m_center[1] += tmp;
+	fp[1] += tmp;
+
+	tmp = k * m_view[2];
+	m_center[2] += tmp;
+	fp[2] += tmp;
+
+	double scalar = m_view[0] * view1[0] + m_view[1] * view1[1] + m_view[2]
+	* view1[2];
+
+	//if (scalar < 0)
+	cout<<"scalar                      "<<scalar<<endl;
+	m_eye=fp;
+	//calculateNormal();
+
+	/*
+
+	 cam.SetPosition(pos);
+	 double[] norm2 = cam.GetDirectionOfProjection();
+	 double scalar = norm2[0] * norm[0] + norm2[1] * norm[1] + norm2[2]
+	 * norm[2];
+
+	 if (scalar < 0)
+	 cam.SetFocalPoint(fp);
+	 cam.OrthogonalizeViewUp();
+	 */
+
 }
 
-void Camera::pan(const Float speed,int x, int y) {
+FVec3 worldToScreen(FVec3 worldPosition,IVec2 m_imageSize) {
 
-	std::cout<<"x: "<<x<<" "<<"y: "<<y<<endl;
+	FMat4 view = FMat4 ();
+	FMat4 projection = FMat4 ();
 
-	float dx = (float) (x) / (float) (m_imageSize[0]);
+	glGetFloatv(GL_MODELVIEW_MATRIX, view);
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+
+	FMat4 viewProj =view * projection;
+
+	FVec3 screen =viewProj.multAffineMatPoint(worldPosition);
+	//screen[0] = screen[0]  * 0.5 /screen[2]  + 0.5;
+	//screen[1] = screen[1] * 0.5 /screen[2]   + 0.5;
+
+
+	/*
+	 GLdouble pos3D_x, pos3D_y, pos3D_z;
+
+	 // arrays to hold matrix information
+
+	 GLdouble model_view[16];
+	 glGetDoublev(GL_MODELVIEW_MATRIX, model_view);
+
+	 GLdouble projection[16];
+	 glGetDoublev(GL_PROJECTION_MATRIX, projection);
+
+	 GLint viewport[4];
+	 glGetIntegerv(GL_VIEWPORT, viewport);
+
+	 // get 3D coordinates based on window coordinates
+
+	 gluProject(m_imageSize[0]/2, m_imageSize[1]/2, 0.01,
+	 model_view, projection, viewport,
+	 &pos3D_x, &pos3D_y, &pos3D_z);
+
+	 FVec3 screen = FVec3();
+	 screen[0] = pos3D_x;
+	 screen[1] = pos3D_y;
+	 screen[2] = pos3D_z;
+	 */
+	return screen;
+}
+
+FVec3 GetOGLPos(int x, int y)
+{
+	GLdouble
+	posX1,
+	posY1,
+	posZ1,
+	posX2,
+	posY2,
+	posZ2,
+	modelview[16],
+	projection[16];
+	GLint
+	viewport[4];
+
+	// Get matrices
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	// Create ray
+	gluUnProject(x, viewport[1] + viewport[3] - y, 0, modelview, projection, viewport, &posX1, &posY1, &posZ1); // Near plane
+	gluUnProject(x, viewport[1] + viewport[3] - y, 1, modelview, projection, viewport, &posX2, &posY2, &posZ2); // Far plane
+
+	FVec3 rayPoint1((float)posX1, (float)posY1, (float)posZ1);
+	FVec3 rayPoint2((float)posX2, (float)posY2, (float)posZ2);
+
+	GLfloat t = (posZ1 - 0) / (posZ1 - posZ2); // - 0 Since our Z == 0.. For easier editing later
+
+	// so here are the desired (x, y) coordinates
+	GLfloat
+	fX = posX1 + (posX2 - posX1) * t,
+	fY = posY1 + (posY2 - posY1) * t;
+	return FVec3(fX, fY, 0);
+}
+
+FVec3 GetScreenPos(FVec3 world)
+{
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLfloat winX, winY, winZ;
+	GLdouble posX, posY, posZ;
+
+	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+	glGetDoublev( GL_PROJECTION_MATRIX, projection );
+	glGetIntegerv( GL_VIEWPORT, viewport );
+
+	gluProject( world[0], world[1], world[2], modelview, projection, viewport, &posX, &posY, &posZ);
+	return FVec3(posX, posY, posZ);
+}
+
+void Camera::pan(const Float speed,int x, int y,IVec2 m_mouseStartPos,IVec2 currentPos) {
+
+	float dx = (float) (x) / (float) (m_imageSize[1]);
 	float dy = (float) (y) / (float) (m_imageSize[1]);
 
 	if (0) {
@@ -154,179 +304,97 @@ void Camera::pan(const Float speed,int x, int y) {
 		dy *= scale;
 	}
 
-	std::cout<<"dx: "<<dx<<" "<<"dy: "<<dy<<endl;
+	FVec3 view = eye()-center();
+	FVec3 upper =view^m_normal;
+	upper.normalize();
 
 	// Performs the following vector math:
 	// pos += dx*right + dy*up;
 	// fp += dx*right + dy*up;
-	double tmp;
-	FVec3 pos =m_eye;
-	FVec3 fp = m_center;
-	tmp = (m_normal[0] * dx + m_up[0] * dy);
-	pos[0] += tmp*speed;
-	fp[0] += tmp*speed;
-	tmp = (m_normal[1]* dx + m_up[1]* dy);
-	pos[1] += tmp*speed;
-	fp[1] += tmp*speed;
-	tmp = (m_normal[2] * dx + m_up[2] * dy);
-	pos[2] += tmp*speed;
-	fp[2] += tmp*speed;
 
-	m_eye = pos;
-	m_center = fp;
+
+	FVec3 temp = m_normal*dx;
+	FVec3 temp2 = upper*dy;
+	FVec3 temp3 = temp + temp2;
+	m_center = m_center + temp3;
+	m_eye = m_eye + temp3;
+
+	//temp = temp + upper*dy;
+
+	//m_eye = m_normal*dx + upper*dy;
+	//m_center = m_normal*dx + upper*dy;
+
+	/*
+	 double tmp;
+	 FVec3 pos =m_eye;
+	 FVec3 fp = m_center;
+	 tmp = (m_normal[0] * dx + upper[0] * dy);
+	 pos[0] += tmp*speed;
+	 fp[0] += tmp*speed;
+	 tmp = (m_normal[1]* dx + upper[1]* dy);
+	 pos[1] += tmp*speed;
+	 fp[1] += tmp*speed;
+	 tmp = (m_normal[2] * dx + upper[2] * dy);
+	 pos[2] += tmp*speed;
+	 fp[2] += tmp*speed;
+
+	 m_eye = pos;
+	 m_center = fp;
+	 */
+
 }
 
 void Camera::rotate(const Float sens,int x, int y) {
 
-	/*
+	calculateNormal();
 
-	 std::cout<<"x: "<<x<<"y: "<<y<<endl;
+	FMat4 azimuth = FMat4 ();
+	azimuth.CreateFromAxisAngle(m_up,-360.0 * x * sens/ m_imageSize[0]);
 
-	 double scale = m_eye.length();
+	FMat4 elevation = FMat4 ();
+	elevation.CreateFromAxisAngle(m_normal,-360.0 * y * sens/ m_imageSize[1]);
 
-	 FVec3 scaledEye =FVec3(m_eye[0] / scale,m_eye[1] / scale, m_eye[2] / scale);
-	 FVec3 scaledCenter =FVec3(m_center[0] / scale,m_center[1] / scale, m_center[2] / scale);
+	FVec3 view = eye()-center();
+	FVec3 upper =view^m_normal;
+	upper.normalize();
+	m_up = upper;
 
-	 //cam.SetFocalPoint(temp[0] / scale, temp[1] / scale, temp[2] / scale);
-	 //temp = cam.GetPosition();
-	 //cam.SetPosition(temp[0] / scale, temp[1] / scale, temp[2] / scale);
+	//m_up = m_view^m_normal;
+	//m_up.normalize();
 
-	 // translate to center
-	 //rotTransform.Identity();
-	 //rotTransform.Translate(COR.x / scale, COR.y / scale, COR.z / scale);
+	FMat4 rot = elevation*azimuth;
+	applyTransform(rot);
+}
 
-	 // azimuth
-	 calculateNormal();
-	 //FMat4 rotation = FMat4 ();
-	 Quaternion azimuth = Quaternion();
-	 azimuth.CreateFromAxisAngle(m_up[0],m_up[1],m_up[2],360.0 * x * speedFactor/ m_imageSize[0]);
-	 //if(x!=0)
-	 ///rotation.rotateAxisAngle(m_up,360.0 * x * speedFactor/ m_imageSize[0]);
+void Camera::spinCamera( int x, int y, int lastX, int lastY) {
 
-	 Quaternion elevation = Quaternion();
-	 elevation.CreateFromAxisAngle(m_normal[0],m_normal[1],m_normal[2],-360.0 * y * speedFactor / m_imageSize[1]);
+	IVec2 displayCenter = IVec2(m_imageSize[0]/2, m_imageSize[1]/2);
 
-	 // elevation
-	 //FMat4 rotation1 = FMat4 ();
-	 //m_normal = m_view^m_up;
-	 //m_normal=m_normal.normalized();
-	 //rotation.rotateAxisAngle(m_normal,-360.0 * y * speedFactor / m_imageSize[1]);
+	// compute the angle of rotation
+	// - first compute the two vectors (center to mouse)
+	double x1, x2, y1, y2;
+	x1 = (double) (lastX - displayCenter[0]);
+	x2 = (double) (x - displayCenter[0]);
+	y1 = (double) (lastY - displayCenter[1]);
+	y2 = (double) (y - displayCenter[1]);
 
-	 //rotation=rotation1*rotation;
+	// compute cross product (only need z component)
+	double zCross = x1 * y2 - y1 * x2;
 
-	 Quaternion rot = elevation*azimuth;
+	// divide by magnitudes to get angle
+	double angle = 57.2957795131 * zCross/ (sqrt(x1 * x1 + y1 * y1) *
+			sqrt(x2 * x2 + y2 * y2));
 
+	FMat4 rotation = FMat4 ();
+	rotation.CreateFromAxisAngle(m_view,-angle/8);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	float dx = (float) (x) / (float) (m_imageSize[0]);
-	float dy = (float) (y) / (float) (m_imageSize[1]);
-
-	 calculateNormal();
-
-	 //double scale = m_eye.length();
-	 //FVec3 scaledEye =FVec3(m_eye[0] / scale,m_eye[1] / scale, m_eye[2] / scale);
-	 //FVec3 scaledCenter =FVec3(m_center[0] / scale,m_center[1] / scale, m_center[2] / scale);
-
-	 // Normalized vector from center of interest to the camera in world space.
-	 FVec3 sphericalDir = FVec3(-m_view[0],-m_view[1],-m_view[2]);
-
-	 // Extract spherical coordinates from spherical position.
-	 // theta: Rotation of the camera about the world up-axis (y or z)
-	 // phi: Rotation of the camera about the world x-axis.
-	 // theta=0 and phi=0 always means that the camera is located on the
-	 // positive z-axis with up-vector alogn the world y-axis and looking along
-	 // the negative z-axis.
-	 Float theta = atan2(sphericalDir[0], sphericalDir[2]);
-	 Float phi = asin(macros::clip(-sphericalDir[1], -1.0f, 1.0f));
-
-	 // Check if camera is upside down.
-	 if (m_up[1] < 0) {
-	 theta -= M_PI;
-	 phi = M_PI - phi;
-	 }
-
-	 // Map theta and phi to the range [0,360)
-	 if (theta < 0)
-	 theta += 2*M_PI;
-	 if (phi < 0)
-	 phi += 2*M_PI;
-
-	 // Add mouse delta and set new rotation angles.
-	 const Float rotateSpeed = 0.25;
-	 Float angularSpeed = macros::deg2rad(rotateSpeed);
-	 if(m_up[1] < 0)
-	 theta += x * angularSpeed;
-	 else
-	 theta -= x * angularSpeed;
-	 phi -= y * angularSpeed;
-
-	 FVec3 rotate = FVec3(macros::rad2deg(phi), macros::rad2deg(theta), 0);
-
-	 // Compute new position from polar coordinates.
-	 Float cosPhi = cosf(phi);
-	 Float sinPhi = sinf(phi);
-	 Float sinTheta = sinf(theta);
-	 Float cosTheta = cosf(theta);
-
-	 // Normalized vector from center of interest to new camera position (world space).
-	 FVec3 newSphericalDir = FVec3(cosPhi * sinTheta, -sinPhi, cosPhi * cosTheta);
-
-	 // Compute new position of the camera in world space.
-	  m_eye = newSphericalDir*m_distance+m_center;
-	  calculateNormal();
-
-	// FVec3 scale = FVec3(1,1,1);
-
-	 //FMat4 rotation = FMat4(t,rotate,scale);
-
- */
-
-
-	Quaternion qCam = Quaternion();
-	qCam.mult(Quaternion(0.0, x/sens, 0.0));
-	qCam.mult(Quaternion(y/sens, 0.0, 0.0));
-
-	FMat4 rot = qCam.transform();
-	m_eye = rot.multAffineMatDir(m_eye);
-	m_up = rot.multAffineMatDir(m_up);
-
-
-
-
-
-
-
-
-
-
-
-	//calculateNormal();
-
-
-	//m_eye = scaledEye;
-	//m_center = scaledCenter;
-    //applyTransform(qCam.transform());
-
-	//m_eye =FVec3(m_eye[0] *scale,m_eye[1] *scale, m_eye[2] * scale);
-	//m_center =FVec3(m_center[0] * scale,m_center[1] * scale, m_center[2] * scale);
-
+	//applyTransform(rotation);
+	m_normal = rotation.multAffineMatDir(m_normal);
+	m_up = rotation.multAffineMatDir(m_up);
 
 }
 
-void Camera::applyTransform( FMat4& transform) {
+void Camera::applyTransform(FMat4& transform) {
 
 	FVec3 posOld =m_eye;
 	FVec3 fpOld =m_center;
@@ -350,6 +418,10 @@ void Camera::calculateNormal()
 	m_view = m_center-m_eye;
 	m_normal = m_view^m_up;
 	m_normal=m_normal.normalized();
+
+	//FVec3 view = center();
+	//m_up =view^m_normal;
+
 }
 
 void Camera::reset()

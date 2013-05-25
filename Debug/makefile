@@ -10,9 +10,13 @@ RM := rm -rf
 -include sources.mk
 -include subdir.mk
 -include src/viewport/subdir.mk
+-include src/structure/subdir.mk
+-include src/opengl/subdir.mk
 -include src/subdir.mk
 -include src/geometry/subdir.mk
 -include src/geometry/drawables/subdir.mk
+-include src/engine/subdir.mk
+-include src/chip/subdir.mk
 -include src/base/math/subdir.mk
 -include src/Interaction/subdir.mk
 -include objects.mk

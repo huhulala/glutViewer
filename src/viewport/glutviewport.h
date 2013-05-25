@@ -1,5 +1,7 @@
 #ifndef GLUTVIEWPORT_H_
 #define GLUTVIEWPORT_H_
+
+#include "../base/math/vec3.h"
 /*!
  *  An abstract GLUT Viewport class object. Inherit from this to implement concrete viewport
  *  callbacks.
@@ -26,6 +28,8 @@ public:
 
 	void SetWindowID(int newWindowID);
 	int GetWindowID(void);
+
+	FVec3 worldToScreen(FVec3 worldPosition);
 
 };
 

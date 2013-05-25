@@ -21,7 +21,8 @@ public:
 	//! The projection type
 	enum ProjectionType {
 		PERSPECTIVE,
-		ORTHOGRAPHIC
+		ORTHOGRAPHIC,
+		ORTHO2D
 	};
 
 	void rotatePoint( double dx, double dy);
@@ -50,7 +51,7 @@ public:
 	void dolly(Float dist);
 
 	//! Zoom along the view vector
-	void zoom(Float dist);
+	void zoom(int y,Float dist);
 
 	//! Reset camera position
 	void reset();
@@ -64,45 +65,6 @@ public:
 	//virtual FMat4 projection(const IVec2& viewSize) const;
 	void calculateNormal();
 
-	//! Sets image
-	void setImageSize(Int w, Int h);
-
-	//! Sets center position
-	void setCenter(Float cX, Float cY, Float cZ);
-
-	//! Sets up vector
-	void setUp(Float cX, Float cY, Float cZ);
-
-	//! Sets eye position
-	void setEye(Float cX, Float cY, Float cZ);
-
-	//! Sets fov
-	void setFov(Float fov);
-
-	//! Query eye position
-	FVec3& eye();
-
-	//! Query center position
-	FVec3& center();
-
-	//! Query up position
-	FVec3& up();
-
-	//! Query up view
-	FVec3& view();
-
-	//! Query distance
-	Float& distance();
-
-	//! Query near
-	Float& near();
-
-	//! Query fov
-	Float& fov();
-
-	//! Query near/far
-	FVec2& frustrum();
-
 	//! Camera roll (rotate around view vector)
 	void roll(Float angle);
 
@@ -113,20 +75,76 @@ public:
 	void yaw(Float delta);
 
 	//! Camera yaw (rotate around up vector)
-	void pan(const Float speed,int x, int y);
+	void pan(const Float speed,int x, int y,IVec2 m_mouseStartPos,IVec2 currentPos);
 
-	//! Camera yaw (rotate around up vector)
+	//! Camera rotate
 	void rotate(const Float speed,int x, int y);
+
+	//! Cam spin. Delta is computed in this method.
+	void spinCamera( int x, int y, int lastX, int lastY);
 
 	void applyTransform( FMat4& transform);
 
 	void ComputeDistance();
+
+	//*************************************************************
+
+	//! Sets image
+	void setImageSize(Int w, Int h);
+
+	//! Sets center position
+	void setCenter(Float cX, Float cY, Float cZ);
+
+	//! Query center position
+	FVec3& center();
+
+	//! Sets projection type
+	void setProjectionMode(ProjectionType projectionType);
+
+	//! Query projection type
+	ProjectionType projectionMode();
+
+	//! Sets up vector
+	void setUp(Float cX, Float cY, Float cZ);
+
+	//! Query up position
+	FVec3& up();
+
+	//! Query up normal
+	FVec3& normal();
+
+	//! Sets eye position
+	void setEye(Float cX, Float cY, Float cZ);
+
+	//! Query eye position
+	FVec3& eye();
+
+	//! Sets fov
+	void setFov(Float fov);
+
+	//! Query fov
+	Float& fov();
+
+	//! Query up view
+	FVec3& view();
+
+	//! Query distance
+	Float& distance();
+
+	//! Query near
+	Float& near();
+
+	//! Query near/far
+	FVec2& frustrum();
 
 protected:
 	//! Compute a projection matrix
 	//virtual void updateProjectionMatrix();
 
 private:
+
+	//! the projection type
+	ProjectionType m_projectionType;
 
 	//! near far planes
 	FVec2 m_frustrum;
@@ -160,8 +178,10 @@ private:
 	//! The projection matrix for the rendered image
 	FMat4 projectionMatrix;
 
-	// Cumulative eye rotation
+	//! Cumulative x eye rotation
 	double rotationEyeX;
+
+	//! Cumulative y eye rotation
 	double rotationEyeY;
 
 };
@@ -182,6 +202,10 @@ inline FVec3& Camera::up() {
 	return m_up;
 }
 
+inline FVec3& Camera::normal() {
+	return m_normal;
+}
+
 inline FVec3& Camera::view() {
 	return m_view;
 }
@@ -197,4 +221,3 @@ inline Float& Camera::distance() {
 END_PV_NAMESPACE
 
 #endif
-

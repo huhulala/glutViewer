@@ -6,7 +6,7 @@ BEGIN_PV_NAMESPACE
 Grid::Grid(Float size): m_size(size) {
 }
 
-void Grid::draw() {
+void Grid::drawGL()const {
 	//if (is_hidden)
 	//	return;
 
@@ -21,23 +21,25 @@ void Grid::draw() {
 	//glTranslated(-1.3, -1.3, -1.3);
 	glBegin( GL_LINES);
 	// x: red
-	glColor3f(1.0, 0.0, 0.0);
+	int size=10;
+	for (int i = -size; i <= size; ++i) {
+
+		glColor3f(0.3, 0.3, 0.3);
+		glNormal3f(1., 0., 0.);
+		glVertex3f(-size, 0., i);
+		glVertex3f(size, 0., i);
+
+		glNormal3f(0., 0., 1.);
+		glVertex3f(i, 0., size);
+		glVertex3f(i, 0., -size);
+	}
+
+	glColor3f(0.3, 0.3, 0.3);
 	glNormal3f(1., 0., 0.);
-	glVertex3f(0., 0., 0.);
-	glVertex3f(m_size, 0., 0.);
-	// y: green
-	glColor3f(0.0, 1.0, 0.0);
-	glNormal3f(0., 1., 0.);
-	glVertex3f(0., 0., 0.);
-	glVertex3f(0., m_size, 0.);
-	// z: blue
-	glColor3f(0.0, 0.0, 1.0);
-	glNormal3f(0., 0., 1.);
-	glVertex3f(0., 0., 0.);
-	glVertex3f(0., 0.,m_size);
+	glVertex3f(0, 3., 0);
+	glVertex3f(0, 0., 0);
+
 	glEnd();
-
-
 
 	glPopMatrix();
 	glPopAttrib();

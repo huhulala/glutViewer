@@ -16,7 +16,7 @@ public:
 	Grid(Float size);
 	
 	//! Method that draws the axis
-	void draw();
+	void drawGL() const;
 
 private:
 	Float m_size;

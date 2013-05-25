@@ -43,6 +43,9 @@ private:
 	static void CallBackReshapeFunc(int w, int h);
 	static void CallBackSpecialFunc(int key, int x, int y);
 	static void CallBackVisibilityFunc(int visible);
+	static void CallBackCloseFunc();
+
+	static void* glutThreadFunc(GlutViewport * glutWindow);
 
 	static int currentIdleWindow;
 	static int idleFunctionEnabled;
@@ -56,7 +59,7 @@ public:
 	~GlutManager();
 
 	void glversion();
-	void CallGlutCreateWindow(char * setTitle, GlutViewport * glutWindow);
+	void CallGlutCreateWindow(const char * setTitle, GlutViewport * glutWindow);
 	void CallGlutMainLoop(void);
 
 	void DisableIdleFunction(void);

@@ -6,6 +6,8 @@
  */
 
 #include "glutviewport.h"
+#include "../base/math/mat4.h"
+#include <GL/glut.h>
 
 GlutViewport::GlutViewport(void) {
 
@@ -60,4 +62,18 @@ void GlutViewport::SetWindowID(int newWindowID) {
 int GlutViewport::GetWindowID(void) {
 
 	return (windowID);
+}
+
+FVec3 GlutViewport::worldToScreen(FVec3 worldPosition){
+
+	FMat4 view = FMat4 ();
+	FMat4 projection = FMat4 ();
+
+	glGetFloatv(GL_MODELVIEW_MATRIX, view);
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+
+	FMat4 viewProj =view * projection;
+
+	FVec3 screen =viewProj.multAffineMatPoint(worldPosition) ;
+	return screen;
 }
